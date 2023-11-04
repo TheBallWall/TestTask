@@ -2,6 +2,7 @@ package org.example.entities;
 
 import java.math.BigInteger;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class Row {
     private final ArrayList<BigInteger> row;
@@ -11,6 +12,10 @@ public class Row {
 //    public Row(ArrayList<Integer> row) {
 //        this.row = row;
 //    }
+
+    public void setInputString(String inputString) {
+        this.inputString = inputString;
+    }
 
     public String getInputString() {
         return inputString;
@@ -40,7 +45,13 @@ public class Row {
         memberOfGroups.add(groupIndex);
     }
 
-
+    public void printRow(){
+        System.out.println(inputString);
+//        System.out.println(row.stream().map(BigInteger::toString).collect(Collectors.joining(";")));
+//        for(BigInteger value: row){
+//            System.out.print();
+//        }
+    }
 
 //    public boolean checkStringAtIndex(String s, int index){
 //        return row.get(index).equals(s);
