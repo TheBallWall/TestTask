@@ -2,49 +2,51 @@ package org.example;
 
 import org.example.entities.Group;
 import org.example.entities.Row;
-import org.w3c.dom.ls.LSOutput;
 
-import java.io.*;
 import java.math.BigInteger;
-import java.net.URL;
 import java.util.*;
-import java.util.zip.GZIPInputStream;
 
-public class Solution {
+public class Solution implements Runnable {
 
     //private ArrayList<ArrayList<ArrayList<String>>> groups = new ArrayList<>();
     //private ArrayList<Group> groups = new ArrayList<Group>();
-    private HashMap<Integer,Group> groups = new HashMap<Integer,Group>();
+    private final HashMap<Integer, Group> groups;
+    private final ArrayList<Row> rowsCollection;
 
-    public void resolve() throws IOException {
-        //InputStream fs = new URL("https://github.com/PeacockTeam/new-job/releases/download/v1.0/lng-4.txt.gz").openStream();
-        //InputStream gs = new GZIPInputStream(fs);
-        //InputStream gs = new FileInputStream("src/main/resources/test.txt");
-        InputStream gs = new FileInputStream("src/main/resources/test20k.txt");
-        BufferedReader reader = new BufferedReader(new InputStreamReader(gs));
-        String temp;
-        long start = System.currentTimeMillis();
+    public Solution(ArrayList<Row> rows){
+        groups = new HashMap<>();
+        rowsCollection = rows;
+    }
+
+    @Override
+    public void run() {
+
+        //long start = System.currentTimeMillis();
         int h = 0;
-        while ((temp = reader.readLine()) != null) {
+
+        String temp;
+        //while ((temp = reader.readLine()) != null) {
+        for(Row row: rowsCollection){
+
             if (h % 1000 == 0) {
                 System.out.println(h);
                 //System.out.printf("Time elapsed: %d\n", System.currentTimeMillis() - start);
             }
             h++;
-            ArrayList<BigInteger> inputRow = checkRow(temp);
-            if (inputRow != null) {
-                Row row = new Row(inputRow);
-                row.setInputString(temp);
+
+            //ArrayList<BigInteger> inputRow = checkRow(temp);
+            //if (inputRow != null) {
+            //    Row row = new Row(inputRow);
+            //    row.setInputString(temp);
                 if (groups.isEmpty()) {
                     Group newGroup = new Group(row);
                     groups.put(newGroup.getGroupId(), newGroup);
                 } else {
                     int rowMemberships = findGroupForRow(row);
-                    if (rowMemberships == 0){
+                    if (rowMemberships == 0) {
                         Group newGroup = new Group(row);
                         groups.put(newGroup.getGroupId(), newGroup);
-                    }
-                    else if (rowMemberships == 1) {
+                    } else if (rowMemberships == 1) {
                         groups.get(row.getMembership().get(0)).addRow(row);
                     } else if (rowMemberships > 1) {
                         Group firstGroup = groups.get(row.getMembership().get(0));
@@ -58,8 +60,7 @@ public class Solution {
                     }
                 }
             }
-        }
-
+        //}
     }
 
     public ArrayList<BigInteger> checkRow(String inputString) {
