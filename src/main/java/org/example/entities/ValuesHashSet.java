@@ -5,8 +5,8 @@ import java.util.Objects;
 
 public class ValuesHashSet<BigInteger> extends HashSet<BigInteger> {
 
-    @Override
-    public boolean equals(Object o) {
+
+    public boolean equalsByAnyValue(Object o) {
         if (this == o)
             return true;
         if (o == null)
@@ -17,9 +17,13 @@ public class ValuesHashSet<BigInteger> extends HashSet<BigInteger> {
         ValuesHashSet<BigInteger> other = (ValuesHashSet<BigInteger>) o;
         if (other.size() == 0 || this.size() == 0) return false;
         if (other.size() > this.size()) {
-            for (BigInteger value : this) if (other.contains(value)) return true;
+            for (BigInteger value : this) if (value != null && other.contains(value)){
+                return true;
+            }
         } else {
-            for (BigInteger value : other) if (this.contains(value)) return true;
+            for (BigInteger value : other) if (value != null && this.contains(value)){
+                return true;
+            }
         }
         return false;
     }

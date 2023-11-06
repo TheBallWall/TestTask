@@ -7,20 +7,20 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class Group {
     private static final AtomicInteger count = new AtomicInteger(0);
 
-    private final ArrayList<Row> group;
+    private final ArrayList<Row> rows;
     //private final HashMap<Integer, HashSet<BigInteger>> valuesCollection;
     private ValuesHashSet<BigInteger> valuesSet;
     private final int groupId;
 
     public Group(Row row, int index) {
-        group = new ArrayList<Row>();
+        rows = new ArrayList<Row>();
         valuesSet = new ValuesHashSet<BigInteger>();
         addRow(row, index);
         groupId = count.incrementAndGet();
     }
 
     public Group(List<Row> rows, int index) {
-        group = new ArrayList<Row>();
+        this.rows = new ArrayList<Row>();
         valuesSet = new ValuesHashSet<BigInteger>();
         for (Row row : rows) {
             addRow(row, index);
@@ -33,7 +33,7 @@ public class Group {
     }
 
     public ArrayList<Row> getRows() {
-        return group;
+        return rows;
     }
 
     public ValuesHashSet<BigInteger> getValuesSet() {
@@ -48,7 +48,7 @@ public class Group {
 //        updateValuesCollection(row);
 //    }
     public void addRow(Row row, int index) {
-        group.add(row);
+        rows.add(row);
         row.setMembership(new ArrayList<>() {{
             add(groupId);
         }});
@@ -71,7 +71,7 @@ public class Group {
 //    }
     public void createValuesSet(int index){
         valuesSet = new ValuesHashSet<>();
-        for(Row row: group){
+        for(Row row: rows){
             valuesSet.add(row.getValueAtIndex(index));
         }
     }
@@ -96,8 +96,18 @@ public class Group {
 //            }
 //        }
 //    }
-    public void mergeGroups(Group group) {
-        this.group.addAll(group.getRows());
+//    public void mergeGroups(Group group) {
+//        this.group.addAll(group.getRows());
+//        //updateValuesCollection(group.getValuesCollection());
+//    }
+    public boolean mergeGroups(Group group) {
+        if(this.equals(group)) return false;
+        if(valuesSet.equalsByAnyValue(group.getValuesSet())) {
+            this.rows.addAll(group.getRows());
+            this.valuesSet.addAll(group.getValuesSet());
+            return true;
+        }
+        return false;
         //updateValuesCollection(group.getValuesCollection());
     }
 }

@@ -21,8 +21,8 @@ public class Main {
 //        InputStream fs = new URL("https://github.com/PeacockTeam/new-job/releases/download/v1.0/lng-4.txt.gz").openStream();
 //        InputStream gs = new GZIPInputStream(fs);
 //        InputStream gs = new FileInputStream("src/main/resources/test.txt");
-//        InputStream gs = new FileInputStream("src/main/resources/test20k.txt");
-        InputStream gs = new FileInputStream("src/main/resources/test100k.txt");
+        InputStream gs = new FileInputStream("src/main/resources/test20k.txt");
+//        InputStream gs = new FileInputStream("src/main/resources/test100k.txt");
         BufferedReader reader = new BufferedReader(new InputStreamReader(gs));
 
         String temp;

@@ -10,8 +10,6 @@ import java.util.stream.Collectors;
 
 public class Solution implements Runnable {
 
-    //private ArrayList<ArrayList<ArrayList<String>>> groups = new ArrayList<>();
-    //private ArrayList<Group> groups = new ArrayList<Group>();
     private final HashMap<Integer, Group> groups;
     private ArrayList<Group> groupsS;
     private final ArrayList<Row> rowsCollection;
@@ -36,28 +34,57 @@ public class Solution implements Runnable {
             //индекс не нужен
             groupsS.add(new Group(groupedRows.get(key), 1));
         }
-        for (int i = 1; i < maxRowSize; i++) {
-            System.out.println(i + "Колонка в работе");
+        for (int column = 1; column < maxRowSize; column++) {
+            System.out.println(column + "Колонка в работе");
             for (Group group : groupsS) {
-                group.createValuesSet(i);
+                group.createValuesSet(column);
             }
-            Map<ValuesHashSet<BigInteger>, List<Group>> groupedGroups = groupsS.stream()
-                    .collect(Collectors.
-                            groupingBy(
-                                    Group::getValuesSet
-                            ));
-            groupsS = new ArrayList<>();
-            for (ValuesHashSet<BigInteger> key : groupedGroups.keySet()) {
-                Group firstGroup = groupedGroups.get(key).getFirst();
-                for (Group group : groupedGroups.get(key)) {
-                    if (group.getGroupId() != firstGroup.getGroupId()) {
-                        firstGroup.mergeGroups(group);
+            int i = 0;
+            while (i < groupsS.size()) {
+                int j = i;
+                while (j < groupsS.size()) {
+                    if (groupsS.get(i).mergeGroups(groupsS.get(j))) {
+                        groupsS.remove(j);
                     }
+                    j++;
                 }
-                groupsS.add(firstGroup);
+                i++;
+                if (i % 1000 == 0) {
+                    System.out.println(i + " групп обработана -- всего групп: " + groupsS.size());
+                }
             }
+
+//            Map<ValuesHashSet<BigInteger>, List<Group>> groupedGroups = groupsS.stream()
+//                    .collect(Collectors.
+//                            groupingBy(
+//                                    Group::getValuesSet
+//                            ));
+//            groupsS = new ArrayList<>();
+//            for (ValuesHashSet<BigInteger> key : groupedGroups.keySet()) {
+//                Group firstGroup = groupedGroups.get(key).getFirst();
+//                for (Group group : groupedGroups.get(key)) {
+//                    if (group.getGroupId() != firstGroup.getGroupId()) {
+//                        firstGroup.mergeGroups(group);
+//                    }
+//                }
+//                groupsS.add(firstGroup);
         }
     }
+
+//            ArrayList<Group> tempGroups;
+//            ArrayList<Group> tempGroupsOther = new ArrayList<>(groupsS);
+//            for (Group group : groupsS) {
+//                tempGroups = new ArrayList<>(tempGroupsOther);
+//                for(Group otherGroup: tempGroups){
+//                    if(!group.equals(otherGroup) && tempGroups.contains(group) && tempGroups.contains(otherGroup)){
+//                        if(group.getValuesSet().equalsByAnyValue(otherGroup.getValuesSet())){
+//                            group.mergeGroups(otherGroup);
+//                            tempGroupsOther.remove(otherGroup);
+//                        }
+//                    }
+//            }
+
+//    }
 
     @Override
     public void run() {
@@ -145,7 +172,7 @@ public class Solution implements Runnable {
 
     }
 
-//    public void printGroups() {
+    //    public void printGroups() {
 //        for (Group group : groups.values()) {
 //            if (group.getRows().size() > 1) {
 //                System.out.println("Группа " + group.getGroupId());
