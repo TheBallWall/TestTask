@@ -7,12 +7,14 @@ import java.lang.reflect.Array;
 import java.math.BigInteger;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
 
 
 public class Main {
 
-    public static void main(String[] args) throws IOException, InterruptedException {
+    public static void main(String[] args) throws IOException {
         long beforeUsedMem = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
         long start = System.currentTimeMillis();
 
@@ -25,14 +27,34 @@ public class Main {
 
         String temp;
         ArrayList<Row> rows = new ArrayList<>();
+        int maxRowSize = 0;
         while ((temp = reader.readLine()) != null) {
             ArrayList<BigInteger> inputRow = checkRow(temp);
             if (inputRow != null) {
                 Row row = new Row(inputRow);
                 row.setInputString(temp);
                 rows.add(row);
+                if (inputRow.size() > maxRowSize) maxRowSize = inputRow.size();
             }
         }
+
+        Solution solution = new Solution(rows);
+        solution.solve(maxRowSize);
+        solution.printGroups();
+
+        //start(rows);
+
+        //Solution s = new Solution();
+        //s.resolve();
+        //s.printGroups();
+
+        long afterUsedMem = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+
+        System.out.printf("\nTime elapsed (s): %d\n", (System.currentTimeMillis() - start) / 1000);
+        System.out.printf("Memory used (Mb): %d", (afterUsedMem - beforeUsedMem) / 1024 / 1024);
+    }
+
+    public static void start(ArrayList<Row> rows) throws InterruptedException {
         ArrayList<Thread> threads = new ArrayList<>();
         int threadsCount = 100;
         int threadPoolSize = rows.size() / threadsCount;
@@ -45,19 +67,12 @@ public class Main {
             }
             threads.add(new Thread(solution));
         }
-        for(Thread t: threads){
+        for (Thread t : threads) {
             t.start();
         }
-        for(Thread t: threads){
+        for (Thread t : threads) {
             t.join();
         }
-        //Solution s = new Solution();
-        //s.resolve();
-        //s.printGroups();
-        long afterUsedMem = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
-
-        System.out.printf("\nTime elapsed (ms): %d\n", System.currentTimeMillis() - start);
-        System.out.printf("Memory used (Mb): %d", (afterUsedMem - beforeUsedMem) / 1024 / 1024);
     }
 
     public static ArrayList<BigInteger> checkRow(String inputString) {

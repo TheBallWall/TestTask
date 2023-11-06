@@ -2,7 +2,6 @@ package org.example.entities;
 
 import java.math.BigInteger;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class Row {
     private final ArrayList<BigInteger> row;
@@ -27,7 +26,8 @@ public class Row {
         row = inputRow;
     }
 
-    public BigInteger getStringAtIndex(int index){
+    public BigInteger getValueAtIndex(int index){
+        if(row.size() <= index) return null;
         return row.get(index);
     }
     public ArrayList<BigInteger> getValues(){
@@ -58,7 +58,7 @@ public class Row {
 //    }
 
     public boolean compareStringsAtIndex(Row r, int index){
-        return row.get(index).equals(r.getStringAtIndex(index));
+        return row.get(index).equals(r.getValueAtIndex(index));
     }
 
     @Override
