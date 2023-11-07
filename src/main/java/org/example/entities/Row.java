@@ -4,7 +4,7 @@ import java.math.BigInteger;
 import java.util.*;
 
 public class Row {
-    private final ArrayList<BigInteger> row;
+    private final ArrayList<BigInteger> values;
     private String inputString;
     private ArrayList<Integer> memberOfGroups;
 
@@ -19,15 +19,16 @@ public class Row {
     public Row(ArrayList<BigInteger> inputRow) {
         //this.inputString = inputString;
         memberOfGroups = new ArrayList<Integer>();
-        row = inputRow;
+        values = inputRow;
     }
 
-    public BigInteger getValueAtIndex(int index){
-        if(row.size() <= index) return null;
-        return row.get(index);
+    public BigInteger getValueAtIndex(int index) {
+        if (values.size() <= index) return null;
+        return values.get(index);
     }
-    public ArrayList<BigInteger> getValues(){
-        return row;
+
+    public ArrayList<BigInteger> getValues() {
+        return values;
     }
 
 //    public ArrayList<Integer> getMembership(){
@@ -41,7 +42,7 @@ public class Row {
 //        memberOfGroups.add(groupIndex);
 //    }
 
-    public void printRow(){
+    public void printRow() {
         System.out.println(inputString);
 //        System.out.println(row.stream().map(BigInteger::toString).collect(Collectors.joining(";")));
 //        for(BigInteger value: row){
@@ -53,17 +54,33 @@ public class Row {
 //        return row.get(index).equals(s);
 //    }
 
-//    public boolean compareStringsAtIndex(Row r, int index){
-//        return row.get(index).equals(r.getValueAtIndex(index));
-//    }
+    public boolean compareValueAtIndex(ArrayList<BigInteger> otherValues, int index) {
+        return values.get(index) != null
+                && otherValues.get(index) != null
+                && Objects.equals(values.get(index), otherValues.get(index));
+    }
 
+    public boolean haveIntersectingValues(Row row) {
+        ArrayList<BigInteger> otherValues = row.getValues();
+        if (values.size() > otherValues.size()) {
+            for (int i = 0; i < otherValues.size(); i++) {
+                if (compareValueAtIndex(otherValues, i))
+                    return true;
+            }
+        } else {
+            for (int i = 0; i < values.size(); i++) {
+                if (compareValueAtIndex(otherValues, i))
+                    return true;
+            }
+        }
+        return false;
+    }
 
     /**
      * Поменять зависимость equals и hashcode с исходной строки на biginteger значения
-     *
      */
     @Override
-    public boolean equals(Object o){
+    public boolean equals(Object o) {
         if (this == o)
             return true;
         if (o == null)
@@ -75,7 +92,7 @@ public class Row {
     }
 
     @Override
-    public int hashCode(){
+    public int hashCode() {
         return Objects.hash(inputString);
     }
 }

@@ -22,8 +22,8 @@ public class Main {
 //        InputStream gs = new GZIPInputStream(fs);
 //        InputStream gs = new FileInputStream("src/main/resources/test.txt");
 //        InputStream gs = new FileInputStream("src/main/resources/test10.txt");
-        InputStream gs = new FileInputStream("src/main/resources/test20k.txt");
-//        InputStream gs = new FileInputStream("src/main/resources/test100k.txt");
+//        InputStream gs = new FileInputStream("src/main/resources/test20k.txt");
+        InputStream gs = new FileInputStream("src/main/resources/test100k.txt");
         BufferedReader reader = new BufferedReader(new InputStreamReader(gs));
 
         String temp;

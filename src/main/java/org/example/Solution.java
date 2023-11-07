@@ -17,26 +17,14 @@ public class Solution implements Runnable {
     }
 
     public void solve(int maxRowSize) {
-//        Map<BigInteger, List<Row>> groupedRows = rowsCollection.stream()
-//                .collect(Collectors.
-//                        groupingBy(
-//                                row -> row.getValueAtIndex(0) == null ? BigInteger.valueOf(-1) : row.getValueAtIndex(0)
-//                        ));
-//        //индекс не нужен
-//        for (Row row : groupedRows.get(BigInteger.valueOf(-1))) groupsS.add(new Group(row, 1));
-//        groupedRows.remove(BigInteger.valueOf(-1));
+        Integer h = 0;
 
-        int h = 0;
-//        Iterator<Row> rowIterator = rowsCollection.iterator();
-//        while (rowIterator.hasNext()) {
         int rowsSize = rowsCollection.size();
         while (rowsSize > 0) {
-//            Row row = rowIterator.next();
             Row row = rowsCollection.get(0);
-            if (h % 1000 == 0) {
-                System.out.println(h + "Строк обработано - " + "Групп: " + groups.size() + " - строк всего осталось: " + rowsCollection.size());
-            }
-            h++;
+
+            logThousand(h);
+
             Group rowGroup = new Group(row);
             groups.add(rowGroup);
 
@@ -46,23 +34,19 @@ public class Solution implements Runnable {
     }
 
     private void getIntersection(Row row, Group group) {
-        Set<Row> intersectingRows = new HashSet<>();
         rowsCollection.remove(row);
-        for (int i = 0; i < row.getValues().size(); i++) {
-            ArrayList<Row> modifiedRowsCollection = new ArrayList<>(rowsCollection);
-            BigInteger value = row.getValueAtIndex(i);
+        int rowsSize = rowsCollection.size();
 
-            if (value != null) {
-                int finalI = i;
-                rowsCollection.stream()
-                        .filter(r -> Objects.equals(r.getValueAtIndex(finalI), value))
-                        .forEach(r -> {
-                            intersectingRows.add(r);
-                            group.addRow(r);
-                            modifiedRowsCollection.remove(r);
-                        });
+        Set<Row> intersectingRows = new HashSet<>();
+        for (int i = 0; i < rowsSize; i++) {
+            Row nextRow = rowsCollection.get(i);
+            if (row.haveIntersectingValues(nextRow)) {
+                intersectingRows.add(nextRow);
+                group.addRow(nextRow);
+                rowsCollection.remove(i);
+                i--;
+                rowsSize--;
             }
-            rowsCollection = modifiedRowsCollection;
         }
         if (!intersectingRows.isEmpty()) {
             for (Row intersectingRow : intersectingRows) {
@@ -82,27 +66,6 @@ public class Solution implements Runnable {
 
     }
 
-    public ArrayList<BigInteger> checkRow(String inputString) {
-        ArrayList<BigInteger> row = new ArrayList<>();
-        for (String s : inputString.split(";")) {
-            if (s.chars().filter(ch -> ch == '\"').count() != 2 ||
-                    s.charAt(0) != '\"' ||
-                    s.charAt(s.length() - 1) != '\"'
-            ) {
-                return null;
-            }
-            if (!s.equals("\"\"")) {
-                s = s.replaceAll("\"", "");
-                row.add(new BigInteger(s));
-            } else row.add(null);
-        }
-        return row;
-    }
-
-    private void checkGroupsForDuplicatedRows() {
-
-    }
-
     public void printGroups() {
         for (Group group : groups) {
             if (group.getRows().size() > 1) {
@@ -115,4 +78,9 @@ public class Solution implements Runnable {
         }
     }
 
+    private void logThousand(Integer h) {
+        if (h % 1000 == 0)
+            System.out.println(h + " Строк обработано - " + "Групп: " + groups.size() + " - строк всего осталось: " + rowsCollection.size());
+        h++;
+    }
 }
