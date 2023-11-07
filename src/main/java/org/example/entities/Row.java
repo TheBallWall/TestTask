@@ -8,10 +8,6 @@ public class Row {
     private String inputString;
     private ArrayList<Integer> memberOfGroups;
 
-//    public Row(ArrayList<Integer> row) {
-//        this.row = row;
-//    }
-
     public void setInputString(String inputString) {
         this.inputString = inputString;
     }
@@ -34,16 +30,16 @@ public class Row {
         return row;
     }
 
-    public ArrayList<Integer> getMembership(){
-        return memberOfGroups;
-    }
+//    public ArrayList<Integer> getMembership(){
+//        return memberOfGroups;
+//    }
 
-    public void setMembership(ArrayList<Integer> memberOfGroups) {
-        this.memberOfGroups = memberOfGroups;
-    }
-    public void addMembership(Integer groupIndex) {
-        memberOfGroups.add(groupIndex);
-    }
+//    public void setMembership(ArrayList<Integer> memberOfGroups) {
+//        this.memberOfGroups = memberOfGroups;
+//    }
+//    public void addMembership(Integer groupIndex) {
+//        memberOfGroups.add(groupIndex);
+//    }
 
     public void printRow(){
         System.out.println(inputString);
@@ -57,10 +53,15 @@ public class Row {
 //        return row.get(index).equals(s);
 //    }
 
-    public boolean compareStringsAtIndex(Row r, int index){
-        return row.get(index).equals(r.getValueAtIndex(index));
-    }
+//    public boolean compareStringsAtIndex(Row r, int index){
+//        return row.get(index).equals(r.getValueAtIndex(index));
+//    }
 
+
+    /**
+     * Поменять зависимость equals и hashcode с исходной строки на biginteger значения
+     *
+     */
     @Override
     public boolean equals(Object o){
         if (this == o)

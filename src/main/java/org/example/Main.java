@@ -21,6 +21,7 @@ public class Main {
 //        InputStream fs = new URL("https://github.com/PeacockTeam/new-job/releases/download/v1.0/lng-4.txt.gz").openStream();
 //        InputStream gs = new GZIPInputStream(fs);
 //        InputStream gs = new FileInputStream("src/main/resources/test.txt");
+//        InputStream gs = new FileInputStream("src/main/resources/test10.txt");
         InputStream gs = new FileInputStream("src/main/resources/test20k.txt");
 //        InputStream gs = new FileInputStream("src/main/resources/test100k.txt");
         BufferedReader reader = new BufferedReader(new InputStreamReader(gs));
@@ -54,26 +55,26 @@ public class Main {
         System.out.printf("Memory used (Mb): %d", (afterUsedMem - beforeUsedMem) / 1024 / 1024);
     }
 
-    public static void start(ArrayList<Row> rows) throws InterruptedException {
-        ArrayList<Thread> threads = new ArrayList<>();
-        int threadsCount = 100;
-        int threadPoolSize = rows.size() / threadsCount;
-        for (int i = 0; i < threadsCount; i++) {
-            Solution solution;
-            if (i == threadPoolSize - 1) {
-                solution = new Solution(new ArrayList<Row>(rows.subList(threadPoolSize * i, rows.size())));
-            } else {
-                solution = new Solution(new ArrayList<Row>(rows.subList(threadPoolSize * i, threadPoolSize * (i + 1))));
-            }
-            threads.add(new Thread(solution));
-        }
-        for (Thread t : threads) {
-            t.start();
-        }
-        for (Thread t : threads) {
-            t.join();
-        }
-    }
+//    public static void start(ArrayList<Row> rows) throws InterruptedException {
+//        ArrayList<Thread> threads = new ArrayList<>();
+//        int threadsCount = 100;
+//        int threadPoolSize = rows.size() / threadsCount;
+//        for (int i = 0; i < threadsCount; i++) {
+//            Solution solution;
+//            if (i == threadPoolSize - 1) {
+//                solution = new Solution(new ArrayList<Row>(rows.subList(threadPoolSize * i, rows.size())));
+//            } else {
+//                solution = new Solution(new ArrayList<Row>(rows.subList(threadPoolSize * i, threadPoolSize * (i + 1))));
+//            }
+//            threads.add(new Thread(solution));
+//        }
+//        for (Thread t : threads) {
+//            t.start();
+//        }
+//        for (Thread t : threads) {
+//            t.join();
+//        }
+//    }
 
     public static ArrayList<BigInteger> checkRow(String inputString) {
         ArrayList<BigInteger> row = new ArrayList<>();
