@@ -3,13 +3,8 @@ package org.example;
 import org.example.entities.Row;
 
 import java.io.*;
-import java.lang.reflect.Array;
 import java.math.BigInteger;
-import java.net.URL;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.zip.GZIPInputStream;
 
 
 public class Main {
@@ -23,21 +18,12 @@ public class Main {
 //        InputStream gs = new FileInputStream("src/main/resources/test.txt");
 //        InputStream gs = new FileInputStream("src/main/resources/test10.txt");
 //        InputStream gs = new FileInputStream("src/main/resources/test20k.txt");
-        InputStream gs = new FileInputStream("src/main/resources/test100k.txt");
+//        InputStream gs = new FileInputStream("src/main/resources/test100k.txt");
+        InputStream gs = new FileInputStream("src/main/resources/full.txt");
         BufferedReader reader = new BufferedReader(new InputStreamReader(gs));
 
-        String temp;
         ArrayList<Row> rows = new ArrayList<>();
-        int maxRowSize = 0;
-        while ((temp = reader.readLine()) != null) {
-            ArrayList<BigInteger> inputRow = checkRow(temp);
-            if (inputRow != null) {
-                Row row = new Row(inputRow);
-                row.setInputString(temp);
-                rows.add(row);
-                if (inputRow.size() > maxRowSize) maxRowSize = inputRow.size();
-            }
-        }
+        int maxRowSize = createRowsFromFileAndGetColumnsSize(reader, rows);
 
         Solution solution = new Solution(rows);
         solution.solve(maxRowSize);
@@ -76,7 +62,22 @@ public class Main {
 //        }
 //    }
 
-    public static ArrayList<BigInteger> checkRow(String inputString) {
+    private static int createRowsFromFileAndGetColumnsSize(BufferedReader reader, ArrayList<Row> rows) throws IOException {
+        String temp;
+        int maxRowSize = 0;
+        while ((temp = reader.readLine()) != null) {
+            ArrayList<BigInteger> inputRow = checkRow(temp);
+            if (inputRow != null) {
+                Row row = new Row(inputRow);
+                row.setInputString(temp);
+                rows.add(row);
+                if (inputRow.size() > maxRowSize) maxRowSize = inputRow.size();
+            }
+        }
+        return maxRowSize;
+    }
+
+    private static ArrayList<BigInteger> checkRow(String inputString) {
         ArrayList<BigInteger> row = new ArrayList<>();
         for (String s : inputString.split(";")) {
             if (s.chars().filter(ch -> ch == '\"').count() != 2 ||

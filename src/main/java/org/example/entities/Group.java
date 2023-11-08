@@ -10,14 +10,19 @@ public class Group {
 
     private final ArrayList<Row> rows;
     //private final HashMap<Integer, HashSet<BigInteger>> valuesCollection;
-    //private ValuesHashSet<BigInteger> valuesSet;
+    private ValuesHashSet<BigInteger> valuesSet;
     private final int groupId;
 
 
-    public Group(Row row){
+    public Group(Row row) {
         groupId = count.incrementAndGet();
         rows = new ArrayList<>();
         rows.add(row);
+    }
+
+    public Group(List<Row> rows) {
+        groupId = count.incrementAndGet();
+        this.rows = new ArrayList<>(rows);
     }
 //    public Group(Row row, int index) {
 //        rows = new ArrayList<Row>();
@@ -43,33 +48,30 @@ public class Group {
         return rows;
     }
 
-//    public ValuesHashSet<BigInteger> getValuesSet() {
+    //    public ValuesHashSet<BigInteger> getValuesSet() {
 //        return valuesSet;
 //    }
 //
     public void addRow(Row row) {
-        if(!rows.contains(row)) rows.add(row);
+        if (!rows.contains(row)) rows.add(row);
     }
-//
-//    public void createValuesSet(int index) {
-//        valuesSet = new ValuesHashSet<>();
-//        for (Row row : rows) {
-//            valuesSet.add(row.getValueAtIndex(index));
-//        }
-//    }
-//
+
+    //
+    public void createValuesSet(int index) {
+        valuesSet = new ValuesHashSet<>();
+        for (Row row : rows) {
+            valuesSet.add(row.getValueAtIndex(index));
+        }
+    }
+
+    //
 //    private void updateValuesSet(Row row, int index) {
 //        valuesSet.add(row.getValueAtIndex(index));
 //    }
 //
-//    public boolean mergeGroups(Group group) {
-//        if (this.equals(group)) return false;
-//        if (valuesSet.equalsByAnyValue(group.getValuesSet())) {
-//            this.rows.addAll(group.getRows());
-//            this.valuesSet.addAll(group.getValuesSet());
-//            return true;
-//        }
-//        return false;
-//        //updateValuesCollection(group.getValuesCollection());
-//    }
+    public boolean mergeGroups(Group group) {
+        if (this.equals(group)) return false;
+        for(Row row: group.getRows()) addRow(row);
+        return true;
+    }
 }
