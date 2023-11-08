@@ -1,7 +1,6 @@
 package org.example.entities;
 
 import java.util.HashSet;
-import java.util.Objects;
 
 public class ValuesHashSet<BigInteger> extends HashSet<BigInteger> {
 
