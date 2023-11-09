@@ -1,11 +1,19 @@
 package org.example.entities;
 
 import java.math.BigInteger;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Objects;
 
 public class Row {
     private final ArrayList<BigInteger> values;
     private String inputString;
+
+    private boolean isGrouped;
+
+    public Row(ArrayList<BigInteger> values) {
+        this.values = values;
+        this.isGrouped = false;
+    }
 
     public void setInputString(String inputString) {
         this.inputString = inputString;
@@ -15,17 +23,20 @@ public class Row {
         return inputString;
     }
 
-    public Row(ArrayList<BigInteger> values) {
-        this.values = values;
+    public boolean isGrouped() {
+        return isGrouped;
+    }
+    public boolean notGrouped() {
+        return !isGrouped;
+    }
+
+    public void setGrouped() {
+        this.isGrouped = true;
     }
 
     public BigInteger getValueAtIndex(int index) {
-        if (values.size() <= index) return null;
-        return values.get(index);
-    }
-
-    public ArrayList<BigInteger> getValues() {
-        return values;
+        if (values.size() <= index) return BigInteger.valueOf(-1);
+        return values.get(index) != null ? values.get(index):BigInteger.valueOf(-1);
     }
 
     public void printRow() {
@@ -38,11 +49,6 @@ public class Row {
                 && Objects.equals(values.get(index), otherValues.get(index));
     }
 
-    /**
-     * Поменять зависимость equals и hashcode с исходной строки на biginteger значения
-     * и id (добавить, если будет создаваться Map<Id,Row> для поиска групп размером 1)
-     *
-     */
     @Override
     public boolean equals(Object o) {
         if (this == o)
