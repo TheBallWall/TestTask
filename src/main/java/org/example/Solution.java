@@ -69,8 +69,8 @@ public class Solution {
         Map<Integer, ArrayList<Integer>> otherGroupsIntersections =
                 findGroupIntersections(firstListOfGroups, otherListOfGroups);
 
-        // Replace first list of groups with the result of merging
-        firstListOfGroups = solveIntersections(firstGroupsMap, otherGroupsMap, firstGroupsReferences, otherGroupsIntersections);
+        // Store result of merging
+        finalGroups = solveIntersections(firstGroupsMap, otherGroupsMap, firstGroupsReferences, otherGroupsIntersections);
     }
 
     /**
