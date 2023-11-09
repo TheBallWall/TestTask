@@ -10,7 +10,7 @@ public class Main {
 
         Solution solution = new Solution(args[0]);
         solution.solve();
-        solution.printGroups();
+        //solution.printGroups();
         solution.printToFile();
 
         System.out.printf("\nTime elapsed (s): %d\n", (System.currentTimeMillis() - start) / 1000);

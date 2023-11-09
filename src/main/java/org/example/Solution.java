@@ -81,7 +81,6 @@ public class Solution {
      */
     private void groupRowsByColumn() {
         for (int i = 0; i < maxRowSize; i++) {
-            System.out.println(i + " Столбец инициализируется");
             int finalI = i;
             Map<BigInteger, List<Row>> groupedRows = rows.stream().collect(Collectors.groupingBy(r -> r.getValueAtIndex(finalI)));
 
@@ -229,8 +228,7 @@ public class Solution {
      * @throws IOException - reading a file
      */
     private void createRowsListFromFile() throws IOException {
-        //InputStream gs = Files.newInputStream(Paths.get(fileName));
-        InputStream gs = new FileInputStream("src/main/resources/full.txt");
+        InputStream gs = Files.newInputStream(Paths.get(fileName));
         BufferedReader reader = new BufferedReader(new InputStreamReader(gs));
 
         String temp = "";
