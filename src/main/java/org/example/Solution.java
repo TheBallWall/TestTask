@@ -4,11 +4,10 @@ import org.example.entities.Group;
 import org.example.entities.Row;
 
 import java.io.*;
-import java.math.BigInteger;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
@@ -19,6 +18,7 @@ public class Solution {
     private ArrayList<Row> singleRowGroups;
     private final Map<Integer, ArrayList<Group>> mapOfGroups;
     private final ArrayList<Row> rows;
+    private HashSet<Row> groupedRows;
     private int maxRowSize;
     private final String fileName;
 
@@ -27,23 +27,35 @@ public class Solution {
         this.rows = new ArrayList<>();
         this.maxRowSize = Integer.MIN_VALUE;
         this.fileName = fileName;
+        this.groupedRows = new HashSet<>();
+        this.finalGroups = new ArrayList<>();
     }
 
     public void solve() throws IOException {
         // Create list of rows and find maxRowSize
+        long start = System.currentTimeMillis();
         createRowsListFromFile();
+        System.out.printf("\nTime elapsed for file processing (s): %d\n", (System.currentTimeMillis() - start) / 1000);
 
         // Group all rows by value in column for each column (index)
+        start = System.currentTimeMillis();
         groupRowsByColumn();
+        System.out.printf("\nTime elapsed for grouping by column (s): %d\n", (System.currentTimeMillis() - start) / 1000);
+
+        // Create groups for each union of rows
+        start = System.currentTimeMillis();
+        createGroups();
+        System.out.printf("\nTime elapsed for final grouping (s): %d\n", (System.currentTimeMillis() - start) / 1000);
+
 
         // Merge all lists of groups into one list
-        finalGroups = mapOfGroups.get(0);
-        for (int i = 1; i < maxRowSize; i++) {
-            mergeTwoListsOfGroups(finalGroups, mapOfGroups.get(i));
-        }
+//        finalGroups = mapOfGroups.get(0);
+//        for (int i = 1; i < maxRowSize; i++) {
+//            mergeTwoListsOfGroups(finalGroups, mapOfGroups.get(i));
+//        }
 
         // Calculate single row groups
-        calculateSingleRowGroups();
+//        calculateSingleRowGroups();
     }
 
     /**
@@ -82,25 +94,100 @@ public class Solution {
     private void groupRowsByColumn() {
         for (int i = 0; i < maxRowSize; i++) {
             int finalI = i;
-            Map<BigInteger, List<Row>> groupedRows = rows.stream().collect(Collectors.groupingBy(r -> r.getValueAtIndex(finalI)));
+            Map<BigDecimal, List<Row>> groupedRows = rows.stream().collect(Collectors.groupingBy(r -> r.getValueAtIndex(finalI)));
 
             // rows with null value at index or groups of 1 are ignored
-            groupedRows.entrySet().removeIf(entry -> entry.getKey().equals(BigInteger.valueOf(-1)) || entry.getValue().size() < 2);
+            groupedRows.entrySet().removeIf(entry -> entry.getKey().equals(BigDecimal.valueOf(-1)) || entry.getValue().size() < 2);
 
-            // set isGrouped param in rows and create groups
-            ArrayList<Group> groups = groupedRows.values().stream()
-                    .map(rows -> {
-                        {
-                            rows.forEach(Row::setGrouped);
-                            return rows;
-                        }
-                    })
-                    .map(Group::new)
-                    .collect(Collectors.toCollection(ArrayList::new));
-
-            // store resulting list of groups
-            mapOfGroups.put(i, groups);
+            int counter = 0;
+            int size = groupedRows.size();
+            for (List<Row> rows : groupedRows.values()) {
+                //Row firstRow = rows.getFirst();
+                HashSet<Row> rowHashSet = new HashSet<>(rows);
+                rows.forEach(r -> {
+                    {
+                        r.updateIntersections(rowHashSet);
+                        r.setNeeded();
+                    }
+                });
+//
+//                if (i == 0) {
+//                    rows.getFirst().updateIntersections(rows);
+//                } else {
+//                    boolean intersected = rows.stream().filter(this.groupedRows::contains).map(row -> row.updateIntersections(rows)).findFirst().isPresent();
+//                    if (!intersected) {
+//                        rows.getFirst().updateIntersections(rows);
+//                    }
+//                }
+                // this.groupedRows.addAll(rows);
+                if (counter % 1000 == 0)
+                    System.out.println("Групп обработано: " + counter + " - групп всего: " + size + " - Столбец: " + i);
+                counter++;
+            }
+            //System.out.println();
         }
+    }
+
+    private void createGroups() {
+        //for (Row row : groupedRows) {
+        //int size = groupedRows.size();
+        //ArrayList<Row> rowsList = new ArrayList<>(groupedRows);
+        // for (int i = 0; i < size; i++) {
+        int size = rows.size();
+        Integer counter = 0;
+        for (Row row : rows) {
+            if (row.isNeeded() && !row.isGrouped() && !row.getIntersections().isEmpty()) {
+                row.setGrouped();
+                HashSet<Row> intersectingRows = new HashSet<>() {{
+                    add(row);
+                }};
+                //HashSet<Row> intersectingRows = new HashSet<>();
+                System.out.println(row.getIntersections().size());
+                findAllIntersectingRows(row, intersectingRows, counter);
+                //size = rowsList.size();
+                finalGroups.add(new Group(intersectingRows));
+            }
+            if (counter % 10000 == 0)
+                System.out.println("Строк обработано: " + counter + " - Строк всего: " + size);
+            counter++;
+        }
+    }
+
+    private void findAllIntersectingRows(Row row, HashSet<Row> intersections, Integer counter) {
+//        counter++;
+//        System.out.println(counter);
+//        Integer finalCounter = counter;
+//        row.getIntersections().forEach(r -> {
+//            {
+//                if (!intersections.contains(r)) {
+//                    intersections.add(r);
+//                    r.setGrouped();
+//                    findAllIntersectingRows(r, intersections, finalCounter);
+//                }
+//            }
+//        });
+        for (Row intersectingFirstRow : row.getIntersections()) {
+            Row nextRow = intersectingFirstRow;
+            while (nextRow != null) {
+                intersections.add(nextRow);
+                row.setGrouped();
+                nextRow = iterateOverIntersectionsForNextRow(nextRow.getIntersections(), intersections);
+            }
+        }
+//        for(Row intersectingRow: row.getIntersections()){
+//            if(!intersections.contains(intersectingRow)){
+//                intersections.add(intersectingRow);
+//                row.setGrouped();
+//                findAllIntersectingRows(intersectingRow,intersections,counter);
+//            }
+//        }
+    }
+
+    private Row iterateOverIntersectionsForNextRow(HashSet<Row> rowIntersections, HashSet<Row> completedIntersections) {
+        for (Row currentRow : rowIntersections) {
+            if (!completedIntersections.contains(currentRow)) return currentRow;
+        }
+        return null;
     }
 
     /**
@@ -228,12 +315,15 @@ public class Solution {
      * @throws IOException - reading a file
      */
     private void createRowsListFromFile() throws IOException {
-        InputStream gs = Files.newInputStream(Paths.get(fileName));
+        //InputStream gs = Files.newInputStream(Paths.get(fileName));
+        //InputStream gs = new FileInputStream("src/main/resources/lng-big.csv");
+        InputStream gs = new FileInputStream("src/main/resources/full.txt");
+
         BufferedReader reader = new BufferedReader(new InputStreamReader(gs));
 
         String temp = "";
         while ((temp = reader.readLine()) != null) {
-            ArrayList<BigInteger> rowValues = checkRow(temp);
+            ArrayList<BigDecimal> rowValues = checkRow(temp);
             if (rowValues != null) {
                 Row row = new Row(rowValues);
                 row.setInputString(temp);
@@ -244,21 +334,24 @@ public class Solution {
     }
 
     /**
-     * Splits an input string into BigInteger values if the string is correct.
+     * Splits an input string into BigDecimal values if the string is correct.
      *
      * @param inputString - line red from file.
      * @return ArrayList of values if the string is correct or else null.
      */
-    private ArrayList<BigInteger> checkRow(String inputString) {
-        ArrayList<BigInteger> row = new ArrayList<>();
-        for (String s : inputString.split(";")) {
-            if (s.chars().filter(ch -> ch == '\"').count() != 2 || s.charAt(0) != '\"' || s.charAt(s.length() - 1) != '\"') {
+    private ArrayList<BigDecimal> checkRow(String inputString) {
+        ArrayList<BigDecimal> row = new ArrayList<>();
+        String fixedString = makeFixedString(inputString);
+
+        for (String s : fixedString.split(";")) {
+            long numOfQuotes = s.chars().filter(ch -> ch == '\"').count();
+            if (!(numOfQuotes == 2 || numOfQuotes == 0) || s.charAt(0) != '\"' || s.charAt(s.length() - 1) != '\"') {
                 //for incorrect string
                 return null;
             }
             if (!s.equals("\"\"")) {
                 s = s.replaceAll("\"", "");
-                row.add(new BigInteger(s));
+                row.add(new BigDecimal(s));
             } else {
                 //empty value in row
                 row.add(null);
@@ -267,6 +360,28 @@ public class Solution {
         return row;
     }
 
+    private String makeFixedString(String originalString) {
+        String result = "";
+        String[] strArray = originalString.split("");
+        boolean endsWithEmpty = false;
+        for (int i = 0; i < strArray.length; i++) {
+            if (i == 0 && strArray[i].equals(";")) {
+                result = result.concat("\"\"");
+            }
+
+            result = result.concat(strArray[i]);
+
+            if (strArray[i].equals(";")) {
+                if (i + 1 <= strArray.length - 1 && strArray[i + 1].equals(";")) {
+                    result = result.concat("\"\"");
+                } else if (i == strArray.length - 1 && strArray[i].equals(";")) {
+                    result = result.concat("\"\"");
+                }
+            }
+        }
+
+        return result;
+    }
 
     private void calculateSingleRowGroups() {
         singleRowGroups = rows.stream().filter(Row::notGrouped).collect(Collectors.toCollection(ArrayList::new));

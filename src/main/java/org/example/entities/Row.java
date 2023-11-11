@@ -1,18 +1,21 @@
 package org.example.entities;
 
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Objects;
+import java.math.BigDecimal;
+import java.util.*;
 
 public class Row {
-    private final ArrayList<BigInteger> values;
+    private final ArrayList<BigDecimal> values;
     private String inputString;
-
     private boolean isGrouped;
+    private boolean isNeeded;
 
-    public Row(ArrayList<BigInteger> values) {
+    private HashSet<Row> intersections;
+
+    public Row(ArrayList<BigDecimal> values) {
         this.values = values;
         this.isGrouped = false;
+        this.isNeeded = false;
+        this.intersections = new HashSet<>();
     }
 
     public void setInputString(String inputString) {
@@ -26,6 +29,7 @@ public class Row {
     public boolean isGrouped() {
         return isGrouped;
     }
+
     public boolean notGrouped() {
         return !isGrouped;
     }
@@ -34,16 +38,46 @@ public class Row {
         this.isGrouped = true;
     }
 
-    public BigInteger getValueAtIndex(int index) {
-        if (values.size() <= index) return BigInteger.valueOf(-1);
-        return values.get(index) != null ? values.get(index):BigInteger.valueOf(-1);
+    public boolean isNeeded() {
+        return isNeeded;
+    }
+
+    public void setNeeded() {
+        this.isNeeded = true;
+    }
+
+    public HashSet<Row> getIntersections() {
+        return intersections;
+    }
+
+    public void setIntersections(HashSet<Row> intersections) {
+        this.intersections = intersections;
+    }
+
+    public void updateIntersections(HashSet<Row> intersections) {
+        if (this.intersections.equals(intersections)) {
+            return;
+        }
+        if (this.intersections.isEmpty()) {
+            this.intersections = intersections;
+            return;
+        }
+
+        this.intersections.addAll(intersections);
+        // not redundant!!!
+        intersections = this.intersections;
+    }
+
+    public BigDecimal getValueAtIndex(int index) {
+        if (values.size() <= index) return BigDecimal.valueOf(-1);
+        return values.get(index) != null ? values.get(index) : BigDecimal.valueOf(-1);
     }
 
     public void printRow() {
         System.out.println(inputString);
     }
 
-    public boolean compareValueAtIndex(ArrayList<BigInteger> otherValues, int index) {
+    public boolean compareValueAtIndex(ArrayList<BigDecimal> otherValues, int index) {
         return values.get(index) != null
                 && otherValues.get(index) != null
                 && Objects.equals(values.get(index), otherValues.get(index));
