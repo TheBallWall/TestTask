@@ -23,12 +23,16 @@ public class Group {
     }
 
     public void addRow(Row row) {
-        rows.add(row);
+        this.rows.add(row);
+    }
+    public void addRows(Collection<Row> rows) {
+        this.rows.addAll(rows);
     }
 
     public boolean mergeGroups(Group incomingGroup) {
         if (this.equals(incomingGroup)) return false;
-        for(Row row: incomingGroup.getRows()) addRow(row);
+        //for(Row row: incomingGroup.getRows()) addRow(row);
+        this.rows.addAll(incomingGroup.getRows());
         return true;
     }
 }

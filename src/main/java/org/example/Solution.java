@@ -15,6 +15,7 @@ import static java.util.stream.Collectors.toList;
 public class Solution {
 
     private ArrayList<Group> finalGroups;
+    private ArrayList<Group> groups;
     private ArrayList<Row> singleRowGroups;
     private final Map<Integer, ArrayList<Group>> mapOfGroups;
     private final ArrayList<Row> rows;
@@ -28,6 +29,7 @@ public class Solution {
         this.maxRowSize = Integer.MIN_VALUE;
         this.fileName = fileName;
         this.groupedRows = new HashSet<>();
+        this.groups = new ArrayList<>();
         this.finalGroups = new ArrayList<>();
     }
 
@@ -102,14 +104,15 @@ public class Solution {
             int counter = 0;
             int size = groupedRows.size();
             for (List<Row> rows : groupedRows.values()) {
+                groups.add(new Group(rows));
                 //Row firstRow = rows.getFirst();
-                HashSet<Row> rowHashSet = new HashSet<>(rows);
-                rows.forEach(r -> {
-                    {
-                        r.updateIntersections(rowHashSet);
-                        r.setNeeded();
-                    }
-                });
+//                HashSet<Row> rowHashSet = new HashSet<>(rows);
+//                rows.forEach(r -> {
+//                    {
+//                        r.updateIntersections(rowHashSet);
+//                        r.setNeeded();
+//                    }
+//                });
 //
 //                if (i == 0) {
 //                    rows.getFirst().updateIntersections(rows);
@@ -133,24 +136,63 @@ public class Solution {
         //int size = groupedRows.size();
         //ArrayList<Row> rowsList = new ArrayList<>(groupedRows);
         // for (int i = 0; i < size; i++) {
-        int size = rows.size();
+        Comparator<Group> comparator = (o1, o2) -> (-1) * Integer.compare(o1.getRows().size(), o2.getRows().size());
+        groups.sort(comparator);
+        int size = groups.size();
         Integer counter = 0;
-        for (Row row : rows) {
-            if (row.isNeeded() && !row.isGrouped() && !row.getIntersections().isEmpty()) {
-                row.setGrouped();
-                HashSet<Row> intersectingRows = new HashSet<>() {{
-                    add(row);
-                }};
-                //HashSet<Row> intersectingRows = new HashSet<>();
-                System.out.println(row.getIntersections().size());
-                findAllIntersectingRows(row, intersectingRows, counter);
-                //size = rowsList.size();
-                finalGroups.add(new Group(intersectingRows));
+        for (int i = 0; i < size; i++) {
+            Group finalGroup = groups.get(i);
+            Set<Row> finalGroupRows = finalGroup.getRows();
+            if (i == size - 1) {
+                finalGroups.add(finalGroup);
+                break;
             }
-            if (counter % 10000 == 0)
-                System.out.println("Строк обработано: " + counter + " - Строк всего: " + size);
-            counter++;
+            for (int j = i + 1; j < size; j++) {
+                Group comparingGroup = groups.get(j);
+                Set<Row> comparingGroupRows = groups.get(j).getRows();
+                if (finalGroupRows.size() > comparingGroupRows.size()) {
+                    for (Row row : comparingGroupRows) {
+                        if (finalGroupRows.contains(row)) {
+                            finalGroup.addRows(comparingGroupRows);
+                            groups.remove(comparingGroup);
+                            size--;
+                            j--;
+                            break;
+                        }
+                    }
+                } else {
+                    for (Row row : finalGroupRows) {
+                        if (comparingGroupRows.contains(row)) {
+                            finalGroup.addRows(comparingGroupRows);
+                            groups.remove(comparingGroup);
+                            size--;
+                            j--;
+                            break;
+                        }
+                    }
+                }
+            }
+            finalGroups.add(finalGroup);
+            if (i % 100 == 0)
+                System.out.println("Групп обработано: " + i + " - Групп всего: " + size);
+            //counter++;
         }
+//        for (Row row : rows) {
+//            if (row.isNeeded() && !row.isGrouped() && !row.getIntersections().isEmpty()) {
+//                row.setGrouped();
+//                HashSet<Row> intersectingRows = new HashSet<>() {{
+//                    add(row);
+//                }};
+//                //HashSet<Row> intersectingRows = new HashSet<>();
+//                System.out.println(row.getIntersections().size());
+//                findAllIntersectingRows(row, intersectingRows, counter);
+//                //size = rowsList.size();
+//                finalGroups.add(new Group(intersectingRows));
+//            }
+//            if (counter % 10000 == 0)
+//                System.out.println("Строк обработано: " + counter + " - Строк всего: " + size);
+//            counter++;
+//        }
     }
 
     private void findAllIntersectingRows(Row row, HashSet<Row> intersections, Integer counter) {
@@ -316,8 +358,8 @@ public class Solution {
      */
     private void createRowsListFromFile() throws IOException {
         //InputStream gs = Files.newInputStream(Paths.get(fileName));
-        //InputStream gs = new FileInputStream("src/main/resources/lng-big.csv");
-        InputStream gs = new FileInputStream("src/main/resources/full.txt");
+        InputStream gs = new FileInputStream("src/main/resources/lng-big.csv");
+        //InputStream gs = new FileInputStream("src/main/resources/full.txt");
 
         BufferedReader reader = new BufferedReader(new InputStreamReader(gs));
 
